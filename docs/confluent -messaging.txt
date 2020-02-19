@@ -1,0 +1,247 @@
+ Send simple non-schema text messages
+ >confluent local produce data 
+ To stop producer use Ctl + d keys
+
+Consume/read messages
+ From another WSL terminal
+  >confluent local consume data 
+
+Send key value messsges
+ >confluent local produce data --   --property parse.key=true --property key.separator=,
+  >userName, {"Salary":1000}
+  >useraddrress, {"location":"Pune"}
+
+ Read values data only
+ >confluent local consume data -- --from-beginning
+
+ Read Key values data
+>confluent local consume data -- --property print.key=true --from-beginning
+
+  confluent local consume data    -- --from-beginning
+
+Read Key values data with offset
+>confluent local consume data -- --property print.key=true --from-beginning
+
+   --offset <String: consume offset>        The offset id to consume from (a non-
+                                           negative number), or 'earliest'    
+                                           which means from beginning, or     
+                                           'latest' which means from end      
+                                           (default: latest) 
+  Valid values are 'earliest', 'latest', or a non-negative long.
+
+>confluent local consume data -- --partition=0 
+ Consumtion starts from end of partition when NO offset specified.
+
+ >confluent local consume data -- --partition=0 --offset=0 
+ >confluent local consume data -- --partition=0 --offset=2
+
+ Offset=Earliest measns from beginning
+ >confluent local consume data -- --partition=0 --offset=earliest
+
+ >confluent local consume data -- --partition=0 --offset=latest
+
+
+
+With avro schema
+ For using avro schema use schema-registry service
+ To run with schema registry
+ >confluent local start schema-registry
+
+Send message with avro schema format
+
+>confluent local produce <topicname> -- [--value-format avro --property value.schema=<schema>] [--cloud] [--config <filename>] [other optional args]
+
+ confluent local produce data  -- --value-format avro --property value.schema=<schema>] [--cloud] [--config <filename>] [other optional args]
+
+ 
+Send in avro format
+confluent local produce data -- --value-format avro --property value.schema='{"type":"record","name":"myschema","fields":[{"name":"username","type":"string"}]}'
+ 
+  
+{"username":"mama"}
+{"username":"fafa"}
+
+ To read with avro schema
+ confluent local consume data2 -- --value-format avro --property print.key=true --from-beginning
+  
+ Send with key and value
+ confluent local produce data2  -- --property parse.key=true --property key.separator=, --value-format avro  --property value.schema='{"type":"record","name":"userschema","fields":[{"name":"username","type":"string"}]}' --property key.schema='{"type":"record","name":"groupschema","fields":[]}'
+
+  {"group":"bank"},{"username":"John"}
+  {"group":"society"},{"username":"Vibha"}
+
+ >confluent local produce data2  -- --property parse.key=true --property key.separator=, --value-format avro  --property value.schema='{"type":"record","name":"userschema","fields":[{"name":"username","type":"string"}]}' --property key.schema='{"type":"record","name":"groupschema","fields":[{"name":"group","type":"string"}]}'
+
+  {"group":"bank"},{"username":"John"}
+  {"group":"society"},{"username":"Vibha"} 
+
+
+> confluent local consume data2 -- --value-format avro --property print.key=true --from-beginning
+ 
+************************
+ Using Consumer groups
+   Consumer Group
+
+    Consumers can join a group by using the same"group.id."
+
+    The maximum parallelism of a group is that the number of consumers in the group ? no of partitions.
+
+    Kafka assigns the partitions of a topic to the consumer in a group, so that each partition is consumed by exactly one consumer in the group.
+
+    Kafka guarantees that a message is only ever read by a single consumer in the group.
+
+    Consumers can see the message in the order they were stored in the log.
+
+Re-balancing of a Consumer
+
+Adding more processes/threads will cause Kafka to re-balance. If any consumer or broker fails to send heartbeat to ZooKeeper, then it can be re-configured via the Kafka cluster. During this re-balance, Kafka will assign available partitions to the available threads, possibly moving a partition to another process.
+
+ Create New topic
+   >kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 3 --topic shop
+
+  >kafka-topics --zookeeper localhost:2181  --list
+  >kafka-topics --zookeeper localhost:2181  --describe shop
+
+  Consumer1
+  >kafka-console-consumer --bootstrap-server localhost:9092  --group "myconsumers" --topic shop --property "print.key=true"
+
+  Consumer2 and Consumer1 are from same comsuymer group
+ >kafka-console-consumer --bootstrap-server localhost:9092  --group "myconsumers" --topic shop --property "print.key=true"
+
+  Comsumer3 with different grpup id
+
+  >kafka-console-consumer --bootstrap-server localhost:9092  --group "shoppers" --topic shop  --property "print.key=true"
+
+ 
+  List the consumer groups
+  >kafka-consumer-groups --bootstrap-server localhost:9092 --list
+
+  Describe the consymer group
+  >kafka-consumer-groups --bootstrap-server localhost:9092 --describe --group shoppers --members
+
+  >kafka-consumer-groups --bootstrap-server localhost:9092 --describe --group myconsumers --members
+ 
+ Send the message to topic 'shop'  anbd obesrebre the receptiom at comsumers
+
+ >confluent local produce shop 
+
+ Consumers1  and Consumer2 are from same comsumer group hnec eonly the Consumers1  receves the mwessge 
+and Consumer2 doesnot receive message being in the same group. While 
+The third Consumers Consumers3 from different group receives all the messages.
+ Now if   Consumers1  is treminated, the next message will be recibed by now the Consumer2
+ and the Consumers3 is receving all the messages.
+  
+**************************************************************
+
+Uisng a config file for conumers and producers
+
+  kafka-consumer-groups  --new-consumer --describe --group consumer-user-group --bootstrap-server localhost:9092 
+
+ ___________________________________________________
+
+ Kafka rest calls
+   Produce a message using JSON with the value '{ "foo": "bar" }' to the topic testTopic
+curl -X POST -H "Content-Type: application/vnd.kafka.json.v2+json" -H "Accept: application/vnd.kafka.v2+json"  --data '{"records":[{"value":{"foo":"bar"}}]}' "http://localhost:8082/topics/testTopic"
+
+Expected output from preceding command
+  {
+   "offsets":[{"partition":0,"offset":0,"error_code":null,"error":null}],"key_schema_id":null,"value_schema_id":null
+  }
+
+Create a consumer for JSON data, starting at the beginning of the topic's
+log and subscribe to the topic. 
+
+curl -X POST -H "Content-Type: application/vnd.kafka.v2+json" --data '{"name": "my_consumer_instance", "format": "json", "auto.offset.reset": "earliest"}'  http://localhost:8082/consumers/my_json_consumer 
+
+Expected output from preceding command
+ {
+  "instance_id":"my_consumer_instance",
+  "base_uri":"http://localhost:8082/consumers/my_json_consumer/instances/my_consumer_instance"
+ }
+Then consume some data using the base URL in the first response.
+
+ curl -X POST -H "Content-Type: application/vnd.kafka.v2+json" --data '{"topics":["testTopic"]}' http://localhost:8082/consumers/my_json_consumer/instances/my_consumer_instance/subscription
+# No content in response
+
+ Now read the response
+curl -X GET -H "Accept: application/vnd.kafka.json.v2+json" http://localhost:8082/consumers/my_json_consumer/instances/my_consumer_instance/records
+
+# Expected output from preceding command
+  [
+   {"key":null,"value":{"foo":"bar"},"partition":0,"offset":0,"topic":"testTopic"}
+  ]
+
+
+Then close the consumer with a DELETE to make it leave the group and clean up
+ its resources.
+
+  curl -X DELETE -H "Content-Type: application/vnd.kafka.v2+json" http://localhost:8082/consumers/my_json_consumer/instances/my_consumer_instance
+# No content in response
+
+  ________________________________
+
+Produce and Consume Avro Schema Messages
+
+  Produce a message using Avro embedded data, including the schema which will
+ be registered with schema registry and used to validate and serialize
+ before storing the data in Kafka
+
+curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json" -H "Accept: application/vnd.kafka.v2+json" --data '{"value_schema": "{\"type\": \"record\", \"name\": \"User\", \"fields\": [{\"name\": \"name\", \"type\": \"string\"}]}", "records": [{"value": {"name": "testUser"}}]}' "http://localhost:8082/topics/avrotest"
+  
+  Expected output
+  {"offsets":[{"partition":0,"offset":0,"error_code":null,"error":null}],"key_schema_id":null,"value_schema_id":1}
+
+Produce a message with Avro key and value.
+Note that if you use Avro values you must also use Avro keys, but the schemas can differ
+
+   curl -X POST -H "Content-Type: application/vnd.kafka.avro.v2+json"  -H "Accept: application/vnd.kafka.v2+json" --data '{"key_schema": "{\"name\":\"user_id\"  ,\"type\": \"int\"   }", "value_schema": "{\"type\": \"record\", \"name\": \"User\", \"fields\": [{\"name\": \"name\", \"type\": \"string\"}]}", "records": [{"key" : 1 , "value": {"name": "testUser"}}]}'  "http://localhost:8082/topics/avrokeytest2"
+
+  Expected respomse
+  {"offsets":[{"partition":0,"offset":0,"error_code":null,"error":null}],"key_schema_id":2,"value_schema_id":1}
+ 
+  Create a consumer for Avro data, starting at the beginning of the topic's
+  log and subscribe to the topic. 
+
+  curl -X POST  -H "Content-Type: application/vnd.kafka.v2+json" --data '{"name": "my_consumer_instance", "format": "avro", "auto.offset.reset": "earliest"}'   http://localhost:8082/consumers/my_avro_consumer
+
+ Expected 
+  {"instance_id":"my_consumer_instance","base_uri":"http://localhost:8082/consumers/my_avro_consumer/instances/my_consumer_instance"}
+ 
+consume some data from a topic, which is decoded, translated to
+JSON, and included in the response. The schema used for deserialization is
+fetched automatically from schema registry.
+  curl -X POST -H "Content-Type: application/vnd.kafka.v2+json" --data '{"topics":["avrokeytest2"]}'  http://localhost:8082/consumers/my_avro_consumer/instances/my_consumer_instance/subscription
+# No content in response
+
+  Consume the message
+   curl -X GET -H "Accept: application/vnd.kafka.avro.v2+json"  http://localhost:8082/consumers/my_avro_consumer/instances/my_consumer_instance/records
+# Expected output from preceding command:
+  [{"key":null,"value":{"name":"testUser"},"partition":0,"offset":1,"topic":"avrokeytest2"}]
+
+  Clean up
+
+  curl -X DELETE -H "Content-Type: application/vnd.kafka.v2+json" http://localhost:8082/consumers/my_avro_consumer/instances/my_consumer_instance
+
+
+  -------------------
+
+ To produce the binary message
+Produce a message using binary embedded data with value "Kafka" to the topic binarytest
+curl -X POST -H "Content-Type: application/vnd.kafka.binary.v2+json" -H "Accept: application/vnd.kafka.v2+json"  --data '{"records":[{"value":"S2Fma2E="}]}' "http://localhost:8082/topics/binarytest"
+
+  Ex[pected 
+"offsets":[{"partition":0,"offset":0,"error_code":null,"error":null}],"key_schema_id":null,"value_schema_id":null}
+
+  Inspect Topic Metadata
+   Gte list of topics
+   curl "http://localhost:8082/topics"
+
+   Get info about one topic
+   curl "http://localhost:8082/topics/shop"
+
+  Get info about a topic's partitions
+  curl "http://localhost:8082/topics/userData/partitions"
+
+  Get info about a consmers
+  curl "http://localhost:8082/consumers"
+

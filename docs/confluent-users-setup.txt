@@ -1,0 +1,58 @@
+Creating directory /var/log/kafka with owner cp-kafka:confluent
+
+Notice: Not creating existing directory /var/log/confluent, 
+Ensure proper permissions for user cp-kafka group confluent
+Creating directory /var/lib/kafka with owner cp-kafka:confluent
+Creating directory /var/lib/zookeeper with owner cp-kafka:confluent
+Notice: If you are planning to use the provided systemd service units for
+Notice: Kafka, ZooKeeper or Connect, make sure that read-write permissions
+Notice: for user cp-kafka and group confluent are set up according to the
+Notice: following commands:
+sudo chown cp-kafka:confluent /var/log/confluent 
+sudo  chmod u+wx,g+wx,o= /var/log/confluent
+
+Setting up confluent-kafka-connect-elasticsearch (5.4.0-1) ...
+Setting up confluent-kafka-connect-jdbc (5.4.0-1) ...
+Setting up confluent-kafka-connect-jms (5.4.0-1) ...
+Setting up confluent-kafka-connect-replicator (5.4.0-1) ...
+Setting up confluent-kafka-connect-storage-common (5.4.0-1) ...
+Setting up confluent-kafka-connect-s3 (5.4.0-1) ...
+Setting up confluent-kafka-mqtt (5.4.0-1) ...
+Setting up confluent-kafka-rest (5.4.0-1) ...
+Notice: Not creating existing directory /var/log/confluent, ensure proper permissions for user cp-kafka-rest group confluent
+Notice: If you are planning to use the provided systemd service units for
+Notice: confluent-kafka-rest, make sure that read-write permissions
+Notice: for user cp-kafka-rest and group confluent are set up according to the
+Notice: following commands:
+sudo chown cp-kafka-rest:confluent /var/log/confluent 
+sudo chmod u+wx,g+wx,o= /var/log/confluent
+
+Setting up confluent-ksql (5.4.0-1) ...
+Notice: Not creating existing directory /var/log/confluent, ensure proper permissions for user cp-ksql group confluent
+Notice: If you are planning to use the provided systemd service units for
+Notice: confluent-ksql, make sure that read-write permissions
+Notice: for user cp-ksql and group confluent are set up according to the
+Notice: following commands:
+chown cp-ksql:confluent /var/log/confluent && chmod u+wx,g+wx,o= /var/log/confluent
+
+Setting up confluent-schema-registry (5.4.0-1) ...
+Notice: Not creating existing directory /var/log/confluent, ensure proper permissions for user cp-schema-registry group confluent
+Notice: If you are planning to use the provided systemd service units for
+Notice: confluent-schema-registry, make sure that read-write permissions
+Notice: for user cp-schema-registry and group confluent are set up according to the
+Notice: following commands:
+chown cp-schema-registry:confluent /var/log/confluent && chmod u+wx,g+wx,o= /var/log/confluent
+
+Setting up confluent-platform-2.12 (5.4.0-1) ...
+ 
+
+
+
+
+
+
+
+
+
+
+

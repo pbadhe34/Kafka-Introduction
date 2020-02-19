@@ -1,0 +1,220 @@
+  Read the WSL host ip : 192.168.0.32 
+
+Read the confluent CLI version
+   confluent  version
+
+ In /etc/kafka/server.properties
+ ##broker.id=0
+ broker.id.generation.enable=true
+
+ To delete the data and logs
+ >sudo rm -fr /tmp/confl*
+
+
+ To invidually start the services with confluent
+
+  sudo /usr/bin/zookeeper-server-start /etc/kafka/zookeeper.properties 
+  
+  sudo /usr/bin/kafka-server-start /etc/kafka/server.properties
+
+ To start all services with CLI
+ >confluent local start
+
+  With verbose logs
+>confluent local start -vvvv
+
+ 
+ Starting Order
+ Starting zookeeper 
+  zookeeper is [UP]
+ Starting kafka
+  kafka is [UP]
+ Starting schema-registry
+  schema-registry is [UP]
+ Starting kafka-rest
+   kafka-rest is [UP]
+ Starting connect
+  connect is [UP]
+ Starting ksql-server
+  ksql-server is [UP]
+ Starting control-center
+  control-center is [UP]
+
+ To  List all available services or plugins 
+ >confluent local list
+
+View the services status
+>confluent local status
+
+  View the status of individual services 
+>confluent local status kafka
+>confluent local status control-center
+
+
+
+To start individual services manually
+ >confluent local start  zookeeper
+ >confluent local start  kafka 
+..
+>confluent local start  control-center
+
+To stop all services
+ >confluent local stop 
+ 
+Stopping Order
+  control-center 
+  ksql-server is  
+  connect   
+  kafka-rest  
+  schema-registry  
+  kafka  
+  zookeeper 
+
+ To view the logs
+> confluent local log kafka
+> confluent local log zookeeper
+> confluent local log schema-registry
+ > confluent local log kafka-rest
+ > confluent local log connect
+ > confluent local log ksql-server
+  >confluent local log control-center
+   
+To stop individual services
+ >confluent local stop  zookeeper, >confluent local stop  kafka ..etc.
+
+To  Get the path of the data and logs of the services managed by the current Confluent run
+>confluent local current
+
+ To Print the Confluent CLI version 
+ >confluent local version  
+
+  To print the version of a service
+ >confluent local version kafka
+, confluent local version zookeeper ,  confluent local version kafka-rest
+  confluent local version connect,  confluent local version ksql-server
+  confluent local version control-center,  confluent local version schema-registry
+
+ To Delete the data and logs of the current Confluent run.
+ > confluent local destroy  
+
+ To view the service resource usage
+>confluent local top
+
+   Confluent Service ports
+    
+  Component 	Port
+ Kafka brokers (plain text) 	9092
+ Confluent Control Center 	9021
+ Kafka Connect REST API 	8083
+ KSQL Server REST API 	        8088
+ Metadata Service (MDS) 	8090
+ REST Proxy 	                8082
+ Schema Registry REST API 	8081
+ ZooKeeper 	    2181, 2888, 3888
+
+The Control Center web interface at http://localhost:9021/.
+************************************
+
+Configure Metadata Service (MDS)
+
+The Metadata Service (MDS) acts as the central authority for all authorization and 
+authentication data. Each Kafka broker in the MDS cluster must be configured with MDS.
+
+    Prerequisites
+
+    Self-managed Confluent Platform for your environment must be downloaded.
+    Active Directory (LDAP service) must be configured. The configurations in this tutorial are based on Active Directory (AD). You must update these configurations to match your LDAP service.
+    Brokers running MDS must be configured with a separate listener for inter-broker communication. To access this listener, a user must be configured with ACLs for authorization
+
+ 
+The MDS cluster and Kafka cluster can be separate clusters or the same cluster
+When you assign user roles using the Confluent CLI, you need the identifiers
+ for the clusters in your Confluent Platform deployment.
+
+To Retrieve metadata about Confluent clusters.
+  >confluent cluster describe --url=
+
+   The cluster ID and Kafka ID for Connect
+
+  >confluent cluster describe --url http://localhost:8083
+
+  >confluent cluster describe --url http://localhost:8090
+
+   >confluent cluster describe --url http://localhost:9092
+
+***********************************
+ To  Produce data to topics in to the Kafka cluster on the localhost.
+ >confluent local produce
+  confluent local produce <topicname> -- [--value-format avro --property value.schema=<schema>] [--cloud] [--config <filename>] [other optional args]
+
+To send to another Kafka cluster, set the '--broker-list' argument
+
+  >confluent local produce test 
+
+  By default, this command sends non-Avro data.
+
+  To send Avro data, specify '--value-format avro --property value.schema=<schema>'  
+
+
+  >confluent local produce test -- --value-format avro --property value.schema='{"type":"record","name":"data","fields":[{"name":"f1","type":"string"}]}'
+
+
+
+  Defulat consume data from local cluster
+  >confluent local consume test 
+
+  To consume from to another Kafka cluster, set the '--bootstrap-server' argument
+
+   >confluent local consume test -- --from-beginning
+
+   To consume with avro schema
+
+   >confluent local consume test1 -- --value-format avro --from-beginning
+
+   >confluent local consume <topicname> -- [flags] --value-format avro --path <path-to-confluent>
+
+To consume from confluent incloud environmnet 
+   >confluent local consume tests -- --cloud --property print.key=true --from-beginning
+
+ 
+ >confluent local consume
+
+  >confluent local produce test 
+To generate the broker ids instead of fixed values
+In /etc/kafka/server.properties, comment out the broker.id=0 line 
+and add the following line to enable broker id generation
+
+#broker.id=0
+broker.id.generation.enable=true
+
+  
+Send and receive messages with topic
+ sudo /usr/bin/kafka-topics --create --bootstrap-server localhost:9092 --replication-factor 1 --partitions 1 --topic userData
+ 
+  sudo /usr/bin/kafka-topics --list --bootstrap-server localhost:9092
+c:\Windows\System32\Drivers\etc\hosts.
+
+
+  tasklist /FI “WINDOWTITLE eq MSN*”   
+
+  tskill <pid>
+
+  To Kill the java processes
+  >wmic process where "name like '%java%'" delete
+
+  
+
+ LIst the WSL distros
+  >wslconfig  /list
+  shutdown ubuntu by wslconfig as
+
+  >wslconfig /t Ubuntu
+
+Shutdown everything: on WSL
+
+  >wsl --shutdown
+
+   Alternaley to kill all processes  
+
+   >sudo killall -r '.*'
+

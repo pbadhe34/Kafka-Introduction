@@ -1,0 +1,163 @@
+Install windows WSL
+
+  Enable WSL either via “Control Panel | Programs and Features”: Turn windows Features On or off
+  Select Windows sub system for Linux and restart the OS.
+
+ Install Ubuntu 16.04 on WSL from url
+
+ Open in Browser
+  https://www.microsoft.com/en-us/p/ubuntu-1604-lts/9pjn388hp8c9?activetab=pivot:overviewtab
+
+  Select get and then launch option
+  set the userName and password
+
+Install java on Ubuntu 16.04 on WSL
+ Start WSL
+ 
+sudo apt-get update
+sudo apt-get upgrade
+sudo apt install openjdk-8-jre-headless
+
+ java -version
+ which java
+
+jdk-8u241-windows-x64.exe for  
+
+ Download conflieunt open soure from
+ https://www.confluent.io/download
+ Select Self managed software and Download free option
+  Enter your email id in the next from
+  Select Deplpyment as Deployment Type: deb
+  Accept the confluent liscense
+ and select Download Free button
+ 
+ Install Confluent
+ Install the public key
+ wget -qO - https://packages.confluent.io/deb/5.4/archive.key | sudo apt-key add -
+
+Add the repository
+sudo add-apt-repository "deb [arch=amd64] https://packages.confluent.io/deb/5.4 stable main"
+
+Update apt-get and install the entire Confluent Platform platform
+sudo apt-get update && sudo apt-get install confluent-platform-2.12
+
+Install confluent cli with sudo user
+sudo curl -L https://cnfl.io/cli | sh -s -- -b /usr/local/bin
+
+  >confluent local start
+
+OPen the Control Center web interface at http://localhost:9021/ and select the cluster.
+
+To list the entire groups on Ubuntu, run the command below
+
+less /etc/group
+ 
+To list the memebrs of group
+
+
+To get a membership of the cdrom group, run the command below
+
+getent group cdrom
+
+which group the current user belongs to:
+
+$ groups
+to check which group a certain user belongs to:
+
+$ groups [username]
+list the group members along with their GIDs.
+
+$ id [username]
+
+To display all users run following command:
+
+compgen -u
+To display all groups run following command:
+
+compgen -g
+
+getent group
+
+print the names of the groups the current user is a member of:
+
+id -nG
+List All Members of a Group
+
+To list all members of a group, use the getent group command followed by the group name.
+
+
+getent group confluent
+
+
+
+https://docs.confluent.io/current/installation/installing_cp/deb-ubuntu.html#systemd-ubuntu-debian-install
+
+
+http://launchpadlibrarian.net/461097363/openjdk-8-jre-headless_8u242-b08-0ubuntu3~18.04_amd64.deb 
+
+Start the zookeeper server
+Open new cmd window
+ set CONF_LIB=C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\kafka\*
+
+set classpath=.;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\kafka\*
+
+Change to C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin\windows dierctory
+
+  cd C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin\windows 
+
+ >cd C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin
+ >zookeeper-server-start C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\kafka\zookeeper.properties
+
+  To run kafka server
+ Open new cmd window
+ change to C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin\windows dir
+ >set classpath=.;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\kafka\*
+
+ >kafka-server-start C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\kafka\server.properties
+
+ Start the Schema Registry
+ >set classpath=C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\schema-registry\*
+ >cd C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin\windows 
+  >schema-registry-start.bat C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\schema-registry\schema-registry.properties
+
+  Schema-Registty class run
+
+  java -Xmx512M -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dlog4j.configuration=file:/opt/confluent/bin/../etc/schema-registry/log4j.properties -cp :/opt/confluent/bin/../package-schema-registry/target/kafka-schema-registry-package-*-development/share/java/schema-registry/*:/opt/confluent/bin/../share/java/confluent-common/*:/opt/confluent/bin/../share/java/rest-utils/*:/opt/confluent/bin/../share/java/schema-registry/* io.confluent.kafka.schemaregistry.rest.SchemaRegistryMain
+
+
+Start the Kafaka-Rest proxy
+ Open new cmd window
+set classpath=.;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\kafka-rest\*;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\confluent-common\*;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\rest-utils\*;
+
+set CONF_REST=C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\kafka-rest
+
+  java -Xmx256M -server -XX:+UseG1GC -XX:MaxGCPauseMillis=20 -XX:InitiatingHeapOccupancyPercent=35 -XX:+DisableExplicitGC -Djava.awt.headless=true -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false -Dlog4j.configuration=file:%CONF_REST%/log4j.properties io.confluent.kafkarest.KafkaRestMain %CONF_REST%/kafka-rest.properties
+
+
+
+ Run Kafka Connect
+  Edit the path of tools-log4j.properties in connect-standalone.bat file.
+ as C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\kafka\
+
+  >set classpath=.;C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\share\java\kafka\*
+  >cd C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\bin\windows
+  >connect-standalone.bat C:\confluent-Kafka.5.4.0-2.12\confluent-5.4.0\etc\kafka\connect-standalone.properties
+
+  confluent  start 
+
+ 
+Starting zookeeper
+ 
+Starting kafka
+ 
+Starting schema-registry
+ 
+Starting kafka-rest
+ 
+Starting connect
+ 
+Starting ksql-server
+ 
+Starting control-center
+ 
+

@@ -1,0 +1,100 @@
+
+  start without control-centre
+  >confluent local start  ksql-server
+
+To stop 
+ >confluent local stop ksql-server
+
+  >confluent local stop kafka
+
+ksql with control center
+https://docs.confluent.io/current/quickstart/ce-quickstart.html?_ga=2.115460495.840099673.1581755065-966066178.1581663021&_gac=1.250880690.1581970411.EAIaIQobChMI2-rV1_zZ5wIVk4mPCh1m6gchEAAYASAAEgK3PPD_BwE
+
+  : BEST TUT : ksql with ksql cmd line
+ https://docs.confluent.io/current/ksql/docs/tutorials/basics-local.html#ksql-quickstart-local
+ 
+ksql with ksql cli
+
+ https://docs.confluent.io/current/ksql/docs/developer-guide/
+
+https://docs.confluent.io/current/ksql/docs/tutorials/basics-local.html
+
+https://docs.confluent.io/current/ksql/docs/index.html
+
+
+  To delete the data and logs
+ >sudo rm -fr /tmp/confl*
+
+ Start the confluent kafka services
+  
+  >confluent local destroy
+  >confluent  local start
+
+  OPen Control-Center web-console in browser
+  OPen in browser : http://localhost:9021/clusters
+1. Create Topics for data
+ Click on topics-->add topic
+  Create a topic named pageviews and click Create with defaults.
+  create a topic named users and click Create with defaults.
+
+  
+  Install the Kafka Connect Datagen source connector using the Confluent Hub client. This connector generates mock data for demonstration purposes and is not suitable for production. Confluent Hub is an online library of pre-packaged and ready-to-install extensions or add-ons for Confluent Platform and Kafka.
+
+> sudo confluent-hub install --no-prompt confluentinc/kafka-connect-datagen:latest
+
+  Downloading component Kafka Connect Datagen 0.2.0, provided by Confluent, Inc. from Confluent Hub and installing into /usr/share/confluent-hub-components
+ Adding installation directory to plugin path in the following files:
+  /etc/kafka/connect-distributed.properties
+  /etc/kafka/connect-standalone.properties
+  /etc/schema-registry/connect-avro-distributed.properties
+  /etc/schema-registry/connect-avro-standalone.properties
+  /tmp/confluent.g6vFXyAK/connect/connect.properties
+
+Completed
+ 
+  3. Install a Kafka Connector and Generate Sample Data.
+  Use Kafka Connect to run a demo source connector called kafka-connect-datagen 
+  that creates sample data for the Kafka topics pageviews and users.
+
+  2. Run one instance of the Kafka Connect Datagen connector to produce 
+    Kafka data to the pageviews topic in AVRO format.
+
+    From your cluster, click Connect.
+
+    Select the connect-default cluster and click Add connector.
+
+    Find the DatagenConnector tile and click Connect.
+
+ 3.Create and Write to a Stream and Table using KSQL
+
+  KSQL is used to create a stream for the pageviews topic, and a table for the users topic
+
+
+Create New topic
+   >kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic pageviews 
+    >kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic users
+
+  >kafka-topics --zookeeper localhost:2181  --list
+  >kafka-topics --zookeeper localhost:2181  --describe users
+
+ KSQL CLI Queries
+ >LOG_DIR=./ksql_logs  ksql  http://localhost:8088
+
+  CREATE STREAM pageviews (viewtime BIGINT,  userid VARCHAR, pageid VARCHAR) WITH (KAFKA_TOPIC='pageviews', VALUE_FORMAT='DELIMITED') ;
+ SHOW STREAMS;
+
+  Generate Data  for query processing
+  >ksql-datagen quickstart=pageviews format=delimited topic=pageviews maxInterval=1500
+
+  >ksql-datagen quickstart=users format=json topic=users maxInterval=1100
+
+  The data can also produced with the kafka-console-producer CLI  
+
+  SELECT * FROM pageviews_enriched EMIT CHANGES;
+
+ shut down a KSQL environment
+
+ Exit KSQL CLI:
+
+ ksql> exit
+
